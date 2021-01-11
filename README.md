@@ -67,3 +67,10 @@ For example, my branch may evolve like this, with main changes (m1, m2, ..., mM)
     Day1: m1, m2, w1, w2
     Day2: m1, m2, m3, w1, w2, w3, w4
     Day3: m1, m2, m3, m4, m5, m6, w1, w2, w3, w4
+
+# References
+
+* [Create a private fork of a public repository](https://gist.github.com/0xjac/85097472043b697ab57ba1b1c7530274)
+* [【Git入門】Git + Github使い方入門講座🐒Gitの仕組みや使い方を完全解説！パーフェクトGit入門！](https://www.youtube.com/watch?v=LDOR5HfI_sQ)
+* `git rebase --help`
+* `git merge --help`
