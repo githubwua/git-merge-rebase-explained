@@ -1,25 +1,5 @@
-
-# Remote to Local (git pull = git fetch + git merge)
-git fetch origin                                  # download changes of current branch from remote repository called origin
-git merge origin/develop                          # commit commits in branch origin/develop to my current branch (which is usually main)
-
-git pull develop                                  # Does both steps above (fetch develop branch from remote, and merge it with my current branch)
-
-# Remote to Local (rebase instead of merge)
-git fetch origin                                  # download changes from remote repository called origin
-git rebase origin/develop develop                 # commit history becomes origin/develop > develop (i.e. develop on top of origin/develop)
-
-git push origin -f                                # Note: when pushing a rebased branch, must use -f to force remote to update history with a rebased one.
-
-e.g. 2 branches main and develop
-
-m1 >    m2  >  m3 > m4
-   \>d1   > d2
-
-Merged  Master: m1 > d1 > m2 > d2 > m3 > m4   (chronological history of commits, commit timestamps are in order)
-Rebased Master: m1 > m2 > m3 > m4 > d1 > d2   (APPEND topic changes to the HEAD of master changes)
-
-Another way to look at this:
+Let's use this example from `git rebase --help`.
+This is what happens when you run `git checkout topic` followed by `git rebase master`
 
        Assume the following history exists and the current branch is "topic":
 
@@ -38,7 +18,6 @@ Another way to look at this:
                             /
                D---E---F---G master
 
-To rebase:  `git checkout topic` followed by `git rebase master`. When rebase exits topic will remain the checked-out branch.
 
 NOTE:
        If the upstream branch already contains a change you have made
@@ -57,32 +36,34 @@ NOTE:
                              /
                D---E---A'---F master
 
-My Test:
+As a test, I created this repository and added these commits and branches to see the effects of rebase and merge.
 
-[BEFORE]
-
+```
 m1(1)----------------m2(4)-----------------m3(7)     #main  (with m1, m2, m3. global change: 1, 4, 7)
-  \----w1(2)--w2(3)----------w3(5)--w4(6)            #wua   (with m1, w1, w2, w3, w4. global change: 1, 2,3,5,6)
+  \----w1(2)--w2(3)----------w3(5)--w4(6)            #wua   (with m1, w1, w2, w3, w4. global change: 1, 2, 3, 5, 6)
 
-main: m1, m2, m3
-wua:  m1, w1, w2, w3, w4
+main branch: m1, m2, m3
+wua  branch: m1, w1, w2, w3, w4
+```
 
-[AFTER]
+Here's the results of various merge and rebase test:
 
-Result: m1-w1-w2-w3-w4-m2-m3  #main (git checkout main; git rebase wua) (change order: wua changes followed by main changes)
+```
+# Rebase
+Result 1: m1-w1-w2-w3-w4-m2-m3  #main (git checkout main; git rebase wua)  (change order: wua changes followed by main changes)
+Result 2: m1-m2-m3-w1-w2-w3-w4  #wua  (git checkout wua;  git rebase main) (change order: main changes followed by wua changes)
 
-Result: m1-m2-m3-w1-w2-w3-w4  #wua (git checkout wua; git rebase main)  (change order: main changes followed by wua changes)
+# Merge
+Result 3: m1-w1-w2-m2-w3-w4-m3  #main (git checkout main; git merge wua)   (chronological change order: 1,2,3,4,5,6,7)
+Result 4: m1-w1-w2-m2-w3-w4-m3  #wua  (git checkout wua;  git merge main)  (chronological change order: 1,2,3,4,5,6,7)
+```
 
-Result: m1-w1-w2-m2-w3-w4-m3  #main (git checkout main; git merge wua)  (chronological change order: 1,2,3,4,5,6,7)
-Result: m1-w1-w2-m2-w3-w4-m3  #wua (git checkout wua; git merge main)   (chronological change order: 1,2,3,4,5,6,7)
+Result 2 looks useful for customizing someone's repository with my own changes, while allowing myself to download the latest changes from the original repository.
+I like the fact that changes are arranged in this order:  main commits + my commits.
 
+In other words, my changes are always at the top of the change history.
+For example, my branch may evolve like this, with main changes (m1, m2, ..., mM) listed first, followed by my own changes (w1, w2, ..., wN)
 
-CONCLUSION:
-
-To fetch changes from Google's latest sample code, while customizing it, do this:
-
-Create a bare remote repository
-git clone $GOOGLE_SAMPLE_CODE
-git branch wua
-
-
+    Day1: m1, m2, w1, w2
+    Day2: m1, m2, m3, w1, w2, w3, w4
+    Day3: m1, m2, m3, m4, m5, m6, w1, w2, w3, w4
